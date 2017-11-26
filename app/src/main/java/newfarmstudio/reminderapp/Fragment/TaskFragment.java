@@ -1,6 +1,7 @@
 package newfarmstudio.reminderapp.Fragment;
 
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.View;
 
 import newfarmstudio.reminderapp.Adapter.TaskAdapter;
 import newfarmstudio.reminderapp.Alarm.AlarmHelper;
+import newfarmstudio.reminderapp.Dialog.EditTaskDialogFragment;
 import newfarmstudio.reminderapp.MainActivity;
 import newfarmstudio.reminderapp.Model.Item;
 import newfarmstudio.reminderapp.Model.ModelTask;
@@ -43,29 +45,11 @@ public abstract class TaskFragment extends Fragment{
         addTaskFromDB();
     }
 
-    public void addTask (ModelTask modelTask, boolean saveToDB) {
-        int position = -1;
+    public abstract void addTask(ModelTask modelTask, boolean saveToDB);
 
-        for (int i = 0; i< adapter.getItemCount(); i++) {
-            if (adapter.getItem(i).isTask()) {
-                ModelTask task = (ModelTask) adapter.getItem(i);
-                if (modelTask.getDate() < task.getDate()) {
-                    position = i;
-                    break;
-                }
-            }
-        }
+    public void updateTask(ModelTask task) {
 
-        if (position != -1) {
-            adapter.addItem(position, modelTask);
-        } else {
-            adapter.addItem(modelTask);
-        }
-
-        if (saveToDB) {
-
-            activity.dbHelper.saveTask(modelTask);
-        }
+        adapter.updateTask(task);
     }
 
     public void removeTaskDialog(final int location) {
@@ -133,6 +117,12 @@ public abstract class TaskFragment extends Fragment{
         }
 
         dialogBuilder.show();
+    }
+
+    public void showTaskEditDialog (ModelTask task) {
+
+        DialogFragment editingTaskDialog = EditTaskDialogFragment.newInstance(task);
+        editingTaskDialog.show(getActivity().getFragmentManager(), "EditTaskDialogFragment");
     }
 
     public abstract void findTasks(String title);

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="wrap_content"
     android:background="@color/gray_50">
     
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:background="?android:selectableItemBackground">
 
 
@@ -17,6 +17,7 @@
         android:textSize="16sp"
         android:textColor="@color/primary_text_default_material_light"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginLeft="72dp"
         android:layout_toRightOf="@+id/tvTaskDate"
         android:layout_alignParentLeft="true"/>
@@ -38,6 +39,7 @@
         android:layout_height="40dp"
         android:src="@color/colorPrimary"
         android:layout_marginLeft="16dp"
+        android:layout_marginBottom="8dp"
         android:layout_margin="8dp"/>
 
     </RelativeLayout>

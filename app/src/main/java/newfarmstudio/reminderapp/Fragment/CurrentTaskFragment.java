@@ -11,12 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import newfarmstudio.reminderapp.Adapter.CurrentTasksAdapter;
 import newfarmstudio.reminderapp.Database.DBHelper;
-import newfarmstudio.reminderapp.R;
+import newfarmstudio.reminderapp.Model.ModelSeparator;
 import newfarmstudio.reminderapp.Model.ModelTask;
+import newfarmstudio.reminderapp.R;
 
 
 /**
@@ -65,6 +67,85 @@ public class CurrentTaskFragment extends TaskFragment {
     }
 
     @Override
+    public void addTask(ModelTask modelTask, boolean saveToDB) {
+
+        int position = -1;
+        ModelSeparator separator = null;
+
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            if (adapter.getItem(i).isTask()) {
+                ModelTask task = (ModelTask) adapter.getItem(i);
+                if (modelTask.getDate() < task.getDate()) {
+                    position = i;
+                    break;
+                }
+            }
+        }
+
+        if (modelTask.getDate() != 0) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(modelTask.getDate());
+
+            if (calendar.get(Calendar.DAY_OF_YEAR) < Calendar.getInstance().get(Calendar.DAY_OF_YEAR)) {
+                modelTask.setDateStatus(ModelSeparator.TYPE_OVERDUE);
+                if (!adapter.containsSeparatorOverdue) {
+                    adapter.containsSeparatorOverdue = true;
+                    separator = new ModelSeparator(ModelSeparator.TYPE_OVERDUE);
+                }
+            } else if (calendar.get(Calendar.DAY_OF_YEAR) == Calendar.getInstance().get(Calendar.DAY_OF_YEAR)) {
+                modelTask.setDateStatus(ModelSeparator.TYPE_TODAY);
+                if (!adapter.containsSeparatorToday) {
+                    adapter.containsSeparatorToday = true;
+                    separator = new ModelSeparator(ModelSeparator.TYPE_TODAY);
+                }
+            } else if (calendar.get(Calendar.DAY_OF_YEAR) == Calendar.getInstance().get(Calendar.DAY_OF_YEAR) + 1) {
+                modelTask.setDateStatus(ModelSeparator.TYPE_TOMORROW);
+                if (!adapter.containsSeparatorTomorrow) {
+                    adapter.containsSeparatorTomorrow = true;
+                    separator = new ModelSeparator(ModelSeparator.TYPE_TOMORROW);
+                }
+            } else if (calendar.get(Calendar.DAY_OF_YEAR) > Calendar.getInstance().get(Calendar.DAY_OF_YEAR) + 1) {
+                modelTask.setDateStatus(ModelSeparator.TYPE_FUTURE);
+                if (!adapter.containsSeparatorFuture) {
+                    adapter.containsSeparatorFuture = true;
+                    separator = new ModelSeparator(ModelSeparator.TYPE_FUTURE);
+                }
+            }
+
+        }
+
+        if (position != -1) {
+
+            if (!adapter.getItem(position - 1).isTask()) {
+                if (position - 2 >= 0 && adapter.getItem(position - 2).isTask()) {
+                    ModelTask task = (ModelTask) adapter.getItem(position - 2);
+                    if (task.getDateStatus() == modelTask.getDateStatus()) {
+                        position -= 1;
+                    }
+                } else if (position - 2 < 0 && modelTask.getDate()==0){
+                    position -= 1;
+                }
+            }
+
+            if (separator != null) {
+                adapter.addItem(position - 1, separator);
+            }
+
+            adapter.addItem(position, modelTask);
+        } else {
+            if (separator != null) {
+                adapter.addItem(separator);
+            }
+            adapter.addItem(modelTask);
+        }
+
+        if (saveToDB) {
+
+            activity.dbHelper.saveTask(modelTask);
+        }
+    }
+
+    @Override
     public void findTasks(String title) {
 
         adapter.removeAllItems();
@@ -75,7 +156,7 @@ public class CurrentTaskFragment extends TaskFragment {
                 + DBHelper.SELECTION_STATUS, new String[]{"%" + title + "%", Integer.toString(ModelTask.STATUS_CURRENT),
                 Integer.toString(ModelTask.STATUS_OVERDUE)}, DBHelper.TASK_DATE_COLUMN));
 
-        for (int i = 0; i<tasks.size(); i++) {
+        for (int i = 0; i < tasks.size(); i++) {
 
             addTask(tasks.get(i), false);
         }
@@ -91,7 +172,7 @@ public class CurrentTaskFragment extends TaskFragment {
                 + DBHelper.SELECTION_STATUS, new String[]{Integer.toString(ModelTask.STATUS_CURRENT),
                 Integer.toString(ModelTask.STATUS_OVERDUE)}, DBHelper.TASK_DATE_COLUMN));
 
-        for (int i = 0; i<tasks.size(); i++) {
+        for (int i = 0; i < tasks.size(); i++) {
 
             addTask(tasks.get(i), false);
         }

@@ -31,7 +31,7 @@ public class DoneTaskFragment extends TaskFragment {
     OnTaskRestoreListener onTaskRestoreListener;
 
     public interface OnTaskRestoreListener {
-        void onTaskRestore (ModelTask task);
+        void onTaskRestore(ModelTask task);
     }
 
     @Override
@@ -62,6 +62,33 @@ public class DoneTaskFragment extends TaskFragment {
     }
 
     @Override
+    public void addTask(ModelTask modelTask, boolean saveToDB) {
+
+        int position = -1;
+
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            if (adapter.getItem(i).isTask()) {
+                ModelTask task = (ModelTask) adapter.getItem(i);
+                if (modelTask.getDate() < task.getDate()) {
+                    position = i;
+                    break;
+                }
+            }
+        }
+
+        if (position != -1) {
+            adapter.addItem(position, modelTask);
+        } else {
+            adapter.addItem(modelTask);
+        }
+
+        if (saveToDB) {
+
+            activity.dbHelper.saveTask(modelTask);
+        }
+    }
+
+    @Override
     public void findTasks(String title) {
 
         adapter.removeAllItems();
@@ -70,7 +97,7 @@ public class DoneTaskFragment extends TaskFragment {
         tasks.addAll(activity.dbHelper.query().getTasks(DBHelper.SELECTION_LIKE_TITLE + " AND " + DBHelper.SELECTION_STATUS,
                 new String[]{"%" + title + "%", Integer.toString(ModelTask.STATUS_DONE)}, DBHelper.TASK_DATE_COLUMN));
 
-        for (int i = 0; i<tasks.size(); i++) {
+        for (int i = 0; i < tasks.size(); i++) {
 
             addTask(tasks.get(i), false);
         }
@@ -85,7 +112,7 @@ public class DoneTaskFragment extends TaskFragment {
         tasks.addAll(activity.dbHelper.query().getTasks(DBHelper.SELECTION_STATUS,
                 new String[]{Integer.toString(ModelTask.STATUS_DONE)}, DBHelper.TASK_DATE_COLUMN));
 
-        for (int i = 0; i<tasks.size(); i++) {
+        for (int i = 0; i < tasks.size(); i++) {
 
             addTask(tasks.get(i), false);
         }

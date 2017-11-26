@@ -18,6 +18,7 @@ import newfarmstudio.reminderapp.Adapter.TabAdapter;
 import newfarmstudio.reminderapp.Alarm.AlarmHelper;
 import newfarmstudio.reminderapp.Database.DBHelper;
 import newfarmstudio.reminderapp.Dialog.AddingTaskDialogFragment;
+import newfarmstudio.reminderapp.Dialog.EditTaskDialogFragment;
 import newfarmstudio.reminderapp.Fragment.CurrentTaskFragment;
 import newfarmstudio.reminderapp.Fragment.DoneTaskFragment;
 import newfarmstudio.reminderapp.Fragment.SplashFragment;
@@ -25,7 +26,7 @@ import newfarmstudio.reminderapp.Fragment.TaskFragment;
 import newfarmstudio.reminderapp.Model.ModelTask;
 
 public class MainActivity extends AppCompatActivity implements AddingTaskDialogFragment.AddingTaskListener,
-        CurrentTaskFragment.OnTaskDoneListener, DoneTaskFragment.OnTaskRestoreListener{
+        CurrentTaskFragment.OnTaskDoneListener, DoneTaskFragment.OnTaskRestoreListener, EditTaskDialogFragment.EditingTaskListener{
 
     FragmentManager fragmentManager;
     PreferenceHelper preferenceHelper;
@@ -42,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         PreferenceHelper.getInstance().init(getApplicationContext());
         preferenceHelper = PreferenceHelper.getInstance();
@@ -187,5 +187,11 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
     @Override
     public void onTaskRestore(ModelTask task) {
         currentTaskFragment.addTask(task, false);
+    }
+
+    @Override
+    public void onTaskEdited(ModelTask updatedTask) {
+        currentTaskFragment.updateTask(updatedTask);
+        dbHelper.update().task(updatedTask);
     }
 }

@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import newfarmstudio.reminderapp.Adapter.TaskAdapter;
+import newfarmstudio.reminderapp.Alarm.AlarmHelper;
 import newfarmstudio.reminderapp.MainActivity;
 import newfarmstudio.reminderapp.Model.Item;
 import newfarmstudio.reminderapp.Model.ModelTask;
@@ -27,6 +28,8 @@ public abstract class TaskFragment extends Fragment{
 
     public MainActivity activity;
 
+    public AlarmHelper alarmHelper;
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -34,6 +37,8 @@ public abstract class TaskFragment extends Fragment{
         if (getActivity() != null) {
             activity = (MainActivity) getActivity();
         }
+
+        alarmHelper = AlarmHelper.getInstance();
 
         addTaskFromDB();
     }
@@ -106,6 +111,7 @@ public abstract class TaskFragment extends Fragment{
 
                             if (isRemoved[0]) {
 
+                                alarmHelper.removeAlarm(timeStamp);
                                 activity.dbHelper.removeTask(timeStamp);
                             }
                         }

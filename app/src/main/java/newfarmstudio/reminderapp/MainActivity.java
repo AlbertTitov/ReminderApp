@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import newfarmstudio.reminderapp.Adapter.TabAdapter;
+import newfarmstudio.reminderapp.Alarm.AlarmHelper;
 import newfarmstudio.reminderapp.Database.DBHelper;
 import newfarmstudio.reminderapp.Dialog.AddingTaskDialogFragment;
 import newfarmstudio.reminderapp.Fragment.CurrentTaskFragment;
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
 
         PreferenceHelper.getInstance().init(getApplicationContext());
         preferenceHelper = PreferenceHelper.getInstance();
+
+        AlarmHelper.getInstance().init(getApplicationContext());
 
         dbHelper = new DBHelper(getApplicationContext());
 
@@ -89,6 +92,18 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
                     .addToBackStack(null).commit();
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MyApplication.activityResumed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MyApplication.activityPaused();
     }
 
     private void setUI() {
